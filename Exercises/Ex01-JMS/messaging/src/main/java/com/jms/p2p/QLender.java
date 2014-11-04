@@ -14,6 +14,7 @@ public class QLender implements MessageListener {
     private QueueConnection qConnect = null;    
     private QueueSession qSession = null;
     private Queue requestQ = null;
+    private final static String bannedBorrower = "Donald Duck";
 
     public QLender(String queuecf, String requestQueue) {    	
     	try {
@@ -59,13 +60,19 @@ public class QLender implements MessageListener {
         	MapMessage msg = (MapMessage)message;
         	double salary = msg.getDouble("Salary");
         	double loanAmt = msg.getDouble("LoanAmount");
+        	String name = msg.getString("Name");
         	
         	// Determine whether to accept or decline the loan
-        	if (loanAmt < 200000) {
-        		accepted = (salary / loanAmt) > .25; 
-        	} else {
-        		accepted = (salary / loanAmt) > .33;
+        	if(name.equals(QLender.bannedBorrower)){
+        		accepted = false;
+        	}else{
+        		if (loanAmt < 200000) {
+            		accepted = (salary / loanAmt) > .25; 
+            	} else {
+            		accepted = (salary / loanAmt) > .33;
+            	}
         	}
+        	
         	System.out.println("" +
         		"Percent = " + (salary / loanAmt) + ", loan is " 
         		+ (accepted ? "Accepted!" : "Declined"));

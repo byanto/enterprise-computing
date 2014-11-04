@@ -49,12 +49,13 @@ public class QBorrower {
         }
     }
 
-    private void sendLoanRequest(double salary, double loanAmt) {
+    private void sendLoanRequest(double salary, double loanAmt, String name) {
     	try {
         	// Create JMS message
         	MapMessage msg = qSession.createMapMessage();
         	msg.setDouble("Salary", salary);
         	msg.setDouble("LoanAmount", loanAmt);
+        	msg.setString("Name", name);
         	msg.setJMSReplyTo(responseQ);
 
         	//set the message expiration to 30 seconds
@@ -113,8 +114,8 @@ public class QBorrower {
             	(new InputStreamReader(System.in));
     		System.out.println ("QBorrower Application Started");
     		System.out.println ("Press enter to quit application");
-    		System.out.println ("Enter: Salary, Loan_Amount");
-    		System.out.println("\ne.g. 50000, 120000");
+    		System.out.println ("Enter: Salary, Loan_Amount, Name");
+    		System.out.println("\ne.g. 50000, 120000, Jack Sparrow");
 
     		while (true) {
         		System.out.print("> ");
@@ -130,8 +131,9 @@ public class QBorrower {
         			Double.valueOf(st.nextToken().trim()).doubleValue( );
         		double loanAmt = 
         			Double.valueOf(st.nextToken().trim()).doubleValue( );
+        		String name = st.nextToken().trim();
 
-        		borrower.sendLoanRequest(salary, loanAmt);
+        		borrower.sendLoanRequest(salary, loanAmt, name);
     		}
     	} catch (IOException ioe) {
     	  ioe.printStackTrace( );
