@@ -3,6 +3,8 @@ package com.aws.sqs;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
@@ -76,28 +78,30 @@ public class SqsBorrower {
 		sqs.sendMessage(loanRequestMessageRequest);
 
 		// TODO check response queue for matching responses
-		// ReceiveMessageRequest receiveMessageRequest = ...
+		ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
+		receiveMessageRequest.setQueueUrl(responseQ);
+		receiveMessageRequest.setMessageAttributeNames(Arrays.asList("uuid"));
 		boolean response = false;
 		System.out.println("Waiting for responses...");
 		while (!response) {
-			//List<Message> messages = sqs.receiveMessage(receiveMessageRequest)
-			//		.getMessages();
-			//for (Message lenderResponseMessage : messages) {
-			//	for (Entry<String, MessageAttributeValue> entry : lenderResponseMessage
-			//			.getMessageAttributes().entrySet()) {
-			//		if (entry.getKey().equals("uuid")
-			//				&& entry.getValue().getStringValue()
-			//						.equals(uuid.toString())) {
-			//			String messageRecieptHandle = lenderResponseMessage
-			//					.getReceiptHandle();
-			//			// Print out the response
-			// TODO			System.out.println(...);
+			List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
+			for (Message lenderResponseMessage : messages) {
+				for (Entry<String, MessageAttributeValue> entry : lenderResponseMessage
+						.getMessageAttributes().entrySet()) {
+					
+					if (entry.getKey().equals("uuid")
+							&& entry.getValue().getStringValue()
+									.equals(uuid.toString())) {
+						String messageRecieptHandle = lenderResponseMessage
+								.getReceiptHandle();
+						// Print out the response
+			 			System.out.println(lenderResponseMessage.getBody());
 						// delete the message from the queue
-			// TODO		...
-			//			response = true;
-			//		}
-			//	}
-			//}
+			 			sqs.deleteMessage(new DeleteMessageRequest(responseQ, messageRecieptHandle));
+						response = true;
+					}
+				}
+			}
 			if (!response) {
 				try {
 					Thread.sleep(5000);

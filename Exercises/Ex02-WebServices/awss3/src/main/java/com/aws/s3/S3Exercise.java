@@ -19,6 +19,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -57,20 +58,26 @@ public class S3Exercise {
 			// TODO create a bucket with name "ise-tu-berlin-exercise2-",
 			// followed by your nickname (e.g., silversurfer)
 			log.info("Creating a bucket (if it does not exist, yet)");
-
+			String bucketName = "ise-tu-berlin-exercise2-batman";
+			if(!(s3.doesBucketExist(bucketName))){
+				s3.createBucket(new CreateBucketRequest(bucketName));
+			}
 
 			// TODO Upload a text File object to your S3 bucket
 			// use the createSampleFile method to create the File object
 			log.info("Uploading an object");
-
+			File file = createSampleFile("batman");
+			String key = "batman-sample-file";
+			s3.putObject(new PutObjectRequest(bucketName, key, file));
 
 			// TODO Download the file from S3 and print it out using the
 			// displayTextInputStream method.
 			log.info("Downloading an object");
-
+			S3Object s3Object = s3.getObject(new GetObjectRequest(bucketName, key));
+			displayTextInputStream(s3Object.getObjectContent());
 			
-			//s3.deleteObject(bucketName, key);
-			//s3.deleteBucket(bucketName);
+			s3.deleteObject(bucketName, key);
+			s3.deleteBucket(bucketName);
 
 		} catch (AmazonServiceException ase) {
 			log.error("Caught an AmazonServiceException, which means your request made it "
@@ -85,6 +92,9 @@ public class S3Exercise {
 							+ "a serious internal problem while trying to communicate with S3, "
 							+ "such as not being able to access the network.");
 			log.error("Error Message: " + ace.getMessage());
+		} catch(IOException ioe){
+			log.error("Caught on IOException");
+			log.error("Error Message: " + ioe.getMessage());
 		}
 
 	}
