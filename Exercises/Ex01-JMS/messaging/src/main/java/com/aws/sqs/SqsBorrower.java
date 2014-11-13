@@ -78,6 +78,7 @@ public class SqsBorrower {
 		sqs.sendMessage(loanRequestMessageRequest);
 
 		// TODO check response queue for matching responses
+//		ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest().withMessageAttributeNames("uuid");
 		ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
 		receiveMessageRequest.setQueueUrl(responseQ);
 		receiveMessageRequest.setMessageAttributeNames(Arrays.asList("uuid"));

@@ -61,6 +61,7 @@ public class SqsLender {
 
 	public void processLoans() {
 		// TODO Prepare receive loan request message request.
+//		ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest().withMessageAttributeNames("uuid");
 		ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
 		receiveMessageRequest.setQueueUrl(requestQ);
 		receiveMessageRequest.setMessageAttributeNames(Arrays.asList("uuid"));
